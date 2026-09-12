@@ -92,6 +92,42 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
+## 📱 Termux & Android CLI (Full AI Capability on Mobile)
+
+AURA can run completely inside **Termux on Android** without needing a desktop or browser!
+
+### 1-Step Termux Installation:
+```bash
+pkg update -y && pkg install git nodejs -y
+git clone https://github.com/zero-creation2008/Aura.git
+cd Aura
+bash termux-install.sh
+```
+
+### Termux Commands:
+```bash
+# Ask AI any question directly
+aura ask "How do I setup an Express API in Termux?"
+
+# Create a brand new specialist agent
+aura agent create AuditBot "AppSec vulnerability reviewer" SecurityAgent
+
+# List all agents, roles, versions
+aura agent list
+
+# Execute an autonomous development goal
+aura goal "Build a lightweight microservice with SQLite"
+
+# Run 6-step AST self-healing debug cycle
+aura debug
+
+# Enter interactive Termux shell
+aura
+```
+👉 Full mobile documentation available in [TERMUX.md](TERMUX.md).
+
+---
+
 ## 📦 GitHub Pages Deployment (Automated CI/CD)
 
 The repository includes a ready-to-run GitHub Actions workflow (`.github/workflows/deploy.yml`).

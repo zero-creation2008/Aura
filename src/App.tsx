@@ -59,8 +59,37 @@ export default function App() {
   const [proposals, setProposals] = useState<ImprovementProposal[]>([]);
   const [logs, setLogs] = useState<OrchestrationLogEntry[]>([]);
 
-  // Fetch complete state from backend
+  // Fetch complete state from backend or static fallbacks
   const refreshAllState = useCallback(async () => {
+    const isStatic =
+      typeof window !== "undefined" &&
+      (window.location.hostname.endsWith("github.io") ||
+        window.location.protocol === "file:" ||
+        window.location.pathname.includes("/Aura"));
+
+    if (isStatic) {
+      setConnected(true);
+      setTelemetry((prev) => prev || initialFallbackTelemetry);
+      setProjects((prev) => (prev.length > 0 ? prev : initialFallbackProjects));
+      setAgents((prev) => (prev.length > 0 ? prev : initialFallbackAgents));
+      setTasks((prev) => (prev.length > 0 ? prev : initialFallbackTasks));
+      setGitRepo((prev) => prev || initialFallbackGitRepo);
+      setKnowledge((prev) => (prev.length > 0 ? prev : initialFallbackKnowledge));
+      return;
+    }
+
+    const safeFetch = async (url: string) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    };
+
     try {
       const [
         telemetryRes,
@@ -74,30 +103,30 @@ export default function App() {
         selfDevRes,
         logsRes,
       ] = await Promise.all([
-        fetch("/api/telemetry").then((r) => r.json()),
-        fetch("/api/orchestrator/status").then((r) => r.json()),
-        fetch("/api/projects").then((r) => r.json()),
-        fetch("/api/agents").then((r) => r.json()),
-        fetch("/api/tasks").then((r) => r.json()),
-        fetch("/api/research").then((r) => r.json()),
-        fetch("/api/knowledge").then((r) => r.json()),
-        fetch("/api/git").then((r) => r.json()),
-        fetch("/api/self-dev").then((r) => r.json()),
-        fetch("/api/logs").then((r) => r.json()),
+        safeFetch("/api/telemetry"),
+        safeFetch("/api/orchestrator/status"),
+        safeFetch("/api/projects"),
+        safeFetch("/api/agents"),
+        safeFetch("/api/tasks"),
+        safeFetch("/api/research"),
+        safeFetch("/api/knowledge"),
+        safeFetch("/api/git"),
+        safeFetch("/api/self-dev"),
+        safeFetch("/api/logs"),
       ]);
 
-      setTelemetry(telemetryRes);
-      setActiveRun(orchRes.activeRun || null);
-      setProjects(projectsRes);
-      setAgents(agentsRes);
-      setTasks(tasksRes);
-      setResearchItems(researchRes);
-      setKnowledge(knowledgeRes);
-      setGitRepo(gitRes);
-      setSystemVersions(selfDevRes.systemVersions || []);
-      setProposals(selfDevRes.improvementProposals || []);
-      setLogs(logsRes);
-    } catch (err) {
+      if (telemetryRes) setTelemetry(telemetryRes);
+      if (orchRes?.activeRun) setActiveRun(orchRes.activeRun);
+      if (projectsRes) setProjects(projectsRes);
+      if (agentsRes) setAgents(agentsRes);
+      if (tasksRes) setTasks(tasksRes);
+      if (researchRes) setResearchItems(researchRes);
+      if (knowledgeRes) setKnowledge(knowledgeRes);
+      if (gitRes) setGitRepo(gitRes);
+      if (selfDevRes?.systemVersions) setSystemVersions(selfDevRes.systemVersions);
+      if (selfDevRes?.improvementProposals) setProposals(selfDevRes.improvementProposals);
+      if (logsRes) setLogs(logsRes);
+    } catch (_err) {
       // Graceful fallback for static GitHub Pages hosting
       setTelemetry((prev) => prev || initialFallbackTelemetry);
       setProjects((prev) => (prev.length > 0 ? prev : initialFallbackProjects));
@@ -112,48 +141,64 @@ export default function App() {
   useEffect(() => {
     refreshAllState();
 
-    const eventSource = new EventSource("/api/events");
+    const isStatic =
+      typeof window !== "undefined" &&
+      (window.location.hostname.endsWith("github.io") ||
+        window.location.protocol === "file:" ||
+        window.location.pathname.includes("/Aura"));
 
-    eventSource.onopen = () => {
+    if (isStatic) {
       setConnected(true);
-    };
+      return;
+    }
 
-    eventSource.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data);
-        if (data.type === "connected") return;
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource("/api/events");
 
-        // Prepend log to live logs
-        const newLog: OrchestrationLogEntry = {
-          id: data.id || `log-${Date.now()}`,
-          timestamp: data.timestamp || new Date().toISOString(),
-          phase: data.phase || "GENERAL",
-          agentName: data.agentName,
-          message: data.message,
-          type: data.type || "info",
-          metadata: data.metadata,
-        };
+      eventSource.onopen = () => {
+        setConnected(true);
+      };
 
-        setLogs((prev) => [newLog, ...prev.slice(0, 300)]);
+      eventSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.type === "connected") return;
 
-        // Refresh state after significant changes
-        if (["COMPLETED", "CODING", "AGENT_CREATION", "GIT_UPDATE"].includes(data.phase)) {
-          refreshAllState();
+          // Prepend log to live logs
+          const newLog: OrchestrationLogEntry = {
+            id: data.id || `log-${Date.now()}`,
+            timestamp: data.timestamp || new Date().toISOString(),
+            phase: data.phase || "GENERAL",
+            agentName: data.agentName,
+            message: data.message,
+            type: data.type || "info",
+            metadata: data.metadata,
+          };
+
+          setLogs((prev) => [newLog, ...prev.slice(0, 300)]);
+
+          // Refresh state after significant changes
+          if (["COMPLETED", "CODING", "AGENT_CREATION", "GIT_UPDATE"].includes(data.phase)) {
+            refreshAllState();
+          }
+        } catch (err) {
+          console.error("SSE parse error:", err);
         }
-      } catch (err) {
-        console.error("SSE parse error:", err);
-      }
-    };
+      };
 
-    eventSource.onerror = () => {
-      setConnected(false);
-    };
+      eventSource.onerror = () => {
+        setConnected(false);
+      };
+    } catch (_e) {
+      setConnected(true);
+    }
 
     // Periodic telemetry refresh
-    const interval = setInterval(refreshAllState, 4000);
+    const interval = setInterval(refreshAllState, 6000);
 
     return () => {
-      eventSource.close();
+      if (eventSource) eventSource.close();
       clearInterval(interval);
     };
   }, [refreshAllState]);
@@ -200,7 +245,7 @@ export default function App() {
       // Step through autonomous phases in static mode
       setTimeout(() => {
         setActiveRun((prev) =>
-          prev ? { ...prev, currentPhase: "RESEARCH", progressPercent: 40, currentStepDescription: "ResearchAgent querying API specs & RFC standards..." } : null
+          prev ? { ...prev, currentPhase: "PROJECT_RESEARCH", progressPercent: 40, currentStepDescription: "ResearchAgent querying API specs & RFC standards..." } : null
         );
       }, 1500);
 
@@ -664,7 +709,7 @@ export default function App() {
 
         {currentTab === "coding" && (
           <CodingEngineView
-            project={projects[0] || { id: "p-0", files: [] }}
+            project={projects[0] || initialFallbackProjects[0]}
             onRunDebugLoop={handleRunDebugLoop}
           />
         )}
