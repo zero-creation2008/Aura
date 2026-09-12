@@ -1,19 +1,29 @@
 /**
  * AURA - Git & GitHub Autonomy View
- * Repositories, branch management, conventional commits, automated PRs & CI pipeline.
+ * Repositories, branch management, conventional commits, automated PRs & GitHub Pages deployment guide.
  */
 
 import React, { useState } from "react";
 import {
+  Check,
   CheckCircle2,
   Clock,
+  Code2,
+  Copy,
   ExternalLink,
   FolderGit2,
+  FolderTree,
   GitBranch,
   GitCommit,
   GitPullRequest,
+  Globe,
+  Layers,
   Plus,
+  Rocket,
+  Server,
   ShieldCheck,
+  Sparkles,
+  Terminal,
   Zap,
 } from "lucide-react";
 import { GitRepository } from "../types";
@@ -25,10 +35,12 @@ interface GitViewProps {
 }
 
 export const GitView: React.FC<GitViewProps> = ({ repository, onCreateBranch, onCreatePR }) => {
+  const [activeSubTab, setActiveSubTab] = useState<"prs_commits" | "pages_guide">("prs_commits");
   const [newBranchName, setNewBranchName] = useState("");
   const [showPRModal, setShowPRModal] = useState(false);
   const [prTitle, setPrTitle] = useState("");
   const [prDesc, setPrDesc] = useState("");
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
   if (!repository) {
     return (
@@ -60,6 +72,119 @@ export const GitView: React.FC<GitViewProps> = ({ repository, onCreateBranch, on
     }
   };
 
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedSection(id);
+    setTimeout(() => setCopiedSection(null), 2000);
+  };
+
+  const deployWorkflowYaml = `# Deploy AURA to GitHub Pages
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Copy 404 Page for SPA Routing
+        run: cp dist/index.html dist/404.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4`;
+
+  const bashGitCommands = `git init
+git add .
+git commit -m "feat: initial AURA autonomous developer platform"
+git branch -M main
+git remote add origin https://github.com/<YOUR_USERNAME>/<YOUR_REPO_NAME>.git
+git push -u origin main`;
+
+  const aiStructureItems = [
+    {
+      layer: "Gemini Intelligence Layer",
+      file: "server/gemini.ts",
+      description: "Gemini 3.8 Flash model routing, structured schema generator, and retry heuristics.",
+      icon: Sparkles,
+      color: "text-cyan-400 bg-cyan-950 border-cyan-800",
+    },
+    {
+      layer: "Autonomous Orchestrator",
+      file: "server/orchestrator.ts",
+      description: "16-step continuous workflow from goal analysis to release, coordinating all agents.",
+      icon: Layers,
+      color: "text-purple-400 bg-purple-950 border-purple-800",
+    },
+    {
+      layer: "Agent Swarm Factory",
+      file: "server/agentFactory.ts",
+      description: "10 specialized roles with automated prompt synthesis and v1 -> v2 evolution.",
+      icon: ShieldCheck,
+      color: "text-emerald-400 bg-emerald-950 border-emerald-800",
+    },
+    {
+      layer: "Coding Engine & Debug Loop",
+      file: "server/codingEngine.ts",
+      description: "AST file scanning, multi-file code synthesis, and self-healing test repair cycle.",
+      icon: Code2,
+      color: "text-indigo-400 bg-indigo-950 border-indigo-800",
+    },
+    {
+      layer: "pgvector Continuous Memory",
+      file: "server/knowledgeStore.ts",
+      description: "4-partition semantic memory (Conversation, Project, Agent, Technical) with cosine similarity.",
+      icon: Server,
+      color: "text-amber-400 bg-amber-950 border-amber-800",
+    },
+    {
+      layer: "Git Autonomy & CI/CD",
+      file: "server/gitEngine.ts & .github/workflows/deploy.yml",
+      description: "Branch creation, conventional commits, automated PRs, and GitHub Pages pipeline.",
+      icon: FolderGit2,
+      color: "text-rose-400 bg-rose-950 border-rose-800",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header Bar */}
@@ -67,11 +192,11 @@ export const GitView: React.FC<GitViewProps> = ({ repository, onCreateBranch, on
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 uppercase tracking-wider font-semibold">
             <FolderGit2 className="w-4 h-4" />
-            <span>Autonomous Version Control</span>
+            <span>Autonomous Version Control & Deployment</span>
           </div>
           <h2 className="text-xl font-bold text-white mt-1">{repository.name}</h2>
           <p className="text-xs text-slate-400 mt-0.5 font-mono">
-            Origin: {repository.url} • Default Branch: {repository.defaultBranch}
+            Origin: {repository.remoteUrl || "https://github.com/seronjeyaseelan/aura-autonomous-developer"} • Current Branch: {repository.currentBranch}
           </p>
         </div>
 
@@ -86,135 +211,331 @@ export const GitView: React.FC<GitViewProps> = ({ repository, onCreateBranch, on
         </div>
       </div>
 
-      {/* Branches & Active Branch Strip */}
-      <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center space-x-2 text-xs font-mono">
-          <GitBranch className="w-4 h-4 text-cyan-400" />
-          <span className="text-slate-400">Current Branch:</span>
-          <span className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800 text-cyan-300 font-semibold">
-            {repository.currentBranch}
+      {/* Sub-Tabs: Commits & PRs vs GitHub Pages & AI Structure */}
+      <div className="flex border-b border-slate-800 text-xs font-mono">
+        <button
+          onClick={() => setActiveSubTab("prs_commits")}
+          className={`px-4 py-2.5 font-semibold flex items-center space-x-2 border-b-2 transition-all ${
+            activeSubTab === "prs_commits"
+              ? "border-cyan-400 text-cyan-400 bg-slate-900/40"
+              : "border-transparent text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          <GitPullRequest className="w-4 h-4" />
+          <span>Commits & Pull Requests</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab("pages_guide")}
+          className={`px-4 py-2.5 font-semibold flex items-center space-x-2 border-b-2 transition-all ${
+            activeSubTab === "pages_guide"
+              ? "border-purple-400 text-purple-400 bg-slate-900/40"
+              : "border-transparent text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          <span>Host in GitHub Pages & AI Structure</span>
+          <span className="px-1.5 py-0.2 rounded-full bg-purple-950 text-purple-300 border border-purple-800 text-[10px]">
+            Ready
           </span>
-        </div>
-
-        <form onSubmit={handleBranchSubmit} className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={newBranchName}
-            onChange={(e) => setNewBranchName(e.target.value)}
-            placeholder="aura/feature-name..."
-            className="px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-cyan-400"
-          />
-          <button
-            type="submit"
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono rounded-lg transition-colors"
-          >
-            + Create Branch
-          </button>
-        </form>
+        </button>
       </div>
 
-      {/* Two Columns: Pull Requests & Commit Stream */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pull Requests Panel */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
-            <GitPullRequest className="w-4 h-4 text-emerald-400" />
-            <span>Pull Requests ({repository.pullRequests.length})</span>
-          </h3>
+      {/* TAB 1: Commits & Pull Requests */}
+      {activeSubTab === "prs_commits" && (
+        <div className="space-y-6">
+          {/* Active Branch Strip */}
+          <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-2 text-xs font-mono">
+              <GitBranch className="w-4 h-4 text-cyan-400" />
+              <span className="text-slate-400">Current Branch:</span>
+              <span className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800 text-cyan-300 font-semibold">
+                {repository.currentBranch}
+              </span>
+            </div>
 
-          <div className="space-y-3">
-            {repository.pullRequests.map((pr) => (
-              <div
-                key={pr.id}
-                className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3"
+            <form onSubmit={handleBranchSubmit} className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={newBranchName}
+                onChange={(e) => setNewBranchName(e.target.value)}
+                placeholder="aura/feature-name..."
+                className="px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+              />
+              <button
+                type="submit"
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono rounded-lg transition-colors"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-bold text-sm text-white">#{pr.number}</span>
-                    <span className="font-semibold text-sm text-slate-200">{pr.title}</span>
-                  </div>
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold uppercase ${
-                      pr.status === "merged"
-                        ? "bg-purple-950/80 border border-purple-800 text-purple-300"
-                        : "bg-emerald-950/80 border border-emerald-800 text-emerald-300"
-                    }`}
+                + Create Branch
+              </button>
+            </form>
+          </div>
+
+          {/* Two Columns: Pull Requests & Commit Stream */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Pull Requests Panel */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
+                <GitPullRequest className="w-4 h-4 text-emerald-400" />
+                <span>Pull Requests ({repository.pullRequests.length})</span>
+              </h3>
+
+              <div className="space-y-3">
+                {repository.pullRequests.map((pr) => (
+                  <div
+                    key={pr.id}
+                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3"
                   >
-                    {pr.status}
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-400 font-sans">{pr.description}</p>
-
-                <div className="flex items-center space-x-2 text-[11px] font-mono text-slate-500">
-                  <span>{pr.headBranch}</span>
-                  <span>→</span>
-                  <span className="text-cyan-400">{pr.baseBranch}</span>
-                </div>
-
-                {/* CI Checks Status */}
-                <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
-                  <span className="text-[10px] font-mono uppercase text-slate-500 block">CI Checks Pipeline:</span>
-                  {pr.ciChecks.map((ci, i) => (
-                    <div
-                      key={i}
-                      className="p-2 rounded bg-slate-950 border border-slate-800/80 flex items-center justify-between text-[11px] font-mono"
-                    >
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        {ci.status === "passed" ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        ) : (
-                          <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0 animate-spin" />
-                        )}
-                        <span className="text-slate-300">{ci.name}</span>
+                        <span className="font-bold text-sm text-white">#{pr.number}</span>
+                        <span className="font-semibold text-sm text-slate-200">{pr.title}</span>
                       </div>
-                      <span className="text-slate-500">{ci.details}</span>
+                      <span
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold uppercase ${
+                          pr.status === "merged"
+                            ? "bg-purple-950/80 border border-purple-800 text-purple-300"
+                            : "bg-emerald-950/80 border border-emerald-800 text-emerald-300"
+                        }`}
+                      >
+                        {pr.status}
+                      </span>
                     </div>
-                  ))}
-                </div>
+
+                    <p className="text-xs text-slate-400 font-sans">{pr.description}</p>
+
+                    <div className="flex items-center space-x-2 text-[11px] font-mono text-slate-500">
+                      <span>{pr.headBranch}</span>
+                      <span>→</span>
+                      <span className="text-cyan-400">{pr.baseBranch}</span>
+                    </div>
+
+                    {/* CI Checks Status */}
+                    <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+                      <span className="text-[10px] font-mono uppercase text-slate-500 block">CI Checks Pipeline:</span>
+                      {pr.ciChecks.map((ci, i) => (
+                        <div
+                          key={i}
+                          className="p-2 rounded bg-slate-950 border border-slate-800/80 flex items-center justify-between text-[11px] font-mono"
+                        >
+                          <div className="flex items-center space-x-2">
+                            {ci.status === "passed" ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            ) : (
+                              <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0 animate-spin" />
+                            )}
+                            <span className="text-slate-300">{ci.name}</span>
+                          </div>
+                          <span className="text-slate-500">{ci.details}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Commit History Timeline */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
-            <GitCommit className="w-4 h-4 text-cyan-400" />
-            <span>Autonomous Commit Log ({repository.commits.length})</span>
-          </h3>
+            {/* Commit History Timeline */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
+                <GitCommit className="w-4 h-4 text-cyan-400" />
+                <span>Autonomous Commit Log ({repository.commits.length})</span>
+              </h3>
 
-          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-            {repository.commits.map((c) => (
-              <div
-                key={c.id}
-                className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between text-xs font-mono"
-              >
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="px-1.5 py-0.2 rounded bg-slate-950 text-cyan-400 font-bold">
-                      {c.hash}
+              <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                {repository.commits.map((c) => (
+                  <div
+                    key={c.id}
+                    className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between text-xs font-mono"
+                  >
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-1.5 py-0.2 rounded bg-slate-950 text-cyan-400 font-bold">
+                          {c.hash}
+                        </span>
+                        <span className="text-white font-medium">{c.message}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-1 flex items-center space-x-3">
+                        <span>{c.author}</span>
+                        <span>•</span>
+                        <span className="text-emerald-400">+{c.additions}</span>
+                        <span className="text-rose-400">-{c.deletions}</span>
+                        <span>•</span>
+                        <span>{new Date(c.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-slate-950 text-slate-400 shrink-0 ml-2">
+                      {c.branch}
                     </span>
-                    <span className="text-white font-medium">{c.message}</span>
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-1 flex items-center space-x-3">
-                    <span>{c.author}</span>
-                    <span>•</span>
-                    <span className="text-emerald-400">+{c.additions}</span>
-                    <span className="text-rose-400">-{c.deletions}</span>
-                    <span>•</span>
-                    <span>{new Date(c.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                </div>
-
-                <span className="text-[10px] px-2 py-0.5 rounded bg-slate-950 text-slate-400 shrink-0 ml-2">
-                  {c.branch}
-                </span>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* TAB 2: Host in GitHub Pages & AI Structure */}
+      {activeSubTab === "pages_guide" && (
+        <div className="space-y-6">
+          {/* Quick Banner */}
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-950/60 via-slate-900 to-slate-900 border border-purple-800/40 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center space-x-2 text-xs font-mono text-purple-400 uppercase tracking-wider font-semibold">
+                <Globe className="w-4 h-4" />
+                <span>Zero-Friction Static Deployment</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mt-1">Ready for GitHub Pages</h3>
+              <p className="text-xs text-slate-400 mt-0.5 max-w-2xl leading-relaxed">
+                AURA is configured with relative base asset paths (`base: './'`), an automated GitHub Actions deployment workflow (`.github/workflows/deploy.yml`), and standalone client-side simulation fallbacks.
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2 shrink-0">
+              <span className="px-3 py-1.5 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-300 text-xs font-mono font-semibold flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Base Path: ./ Configured</span>
+              </span>
+            </div>
+          </div>
+
+          {/* AI Platform Architecture Structure */}
+          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+            <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
+              <FolderTree className="w-4 h-4 text-cyan-400" />
+              <span>AURA AI Platform Structure & Architecture</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              {aiStructureItems.map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <div key={i} className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className={`p-1.5 rounded-lg border ${item.color}`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="font-bold text-white">{item.layer}</span>
+                    </div>
+                    <div className="font-mono text-[11px] text-cyan-400">{item.file}</div>
+                    <p className="text-[11px] text-slate-400 font-sans leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Step-by-Step GitHub Pages Walkthrough */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Steps Guide */}
+            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
+                <Rocket className="w-4 h-4 text-emerald-400" />
+                <span>3-Step Deployment Walkthrough</span>
+              </h3>
+
+              <div className="space-y-3 text-xs">
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1">
+                  <div className="flex items-center space-x-2 font-bold text-white">
+                    <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-mono">1</span>
+                    <span>Push to your GitHub Repository</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] pl-7">
+                    Export your project or push the repository to GitHub on branch <code className="text-cyan-300">main</code>.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1">
+                  <div className="flex items-center space-x-2 font-bold text-white">
+                    <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-mono">2</span>
+                    <span>Enable GitHub Pages in Settings</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] pl-7">
+                    Navigate to <strong className="text-slate-200">Settings &gt; Pages</strong> on GitHub. Under <strong>Build and deployment &gt; Source</strong>, choose <strong className="text-purple-300">GitHub Actions</strong>.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1">
+                  <div className="flex items-center space-x-2 font-bold text-white">
+                    <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-mono">3</span>
+                    <span>Automatic Build & Live URL</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] pl-7">
+                    GitHub Actions automatically triggers the build. Your app goes live at <code className="text-emerald-400">https://&lt;username&gt;.github.io/&lt;repo&gt;/</code>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Copy Terminal Commands */}
+              <div className="pt-2">
+                <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+                  <span className="flex items-center space-x-1.5">
+                    <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Terminal Commands:</span>
+                  </span>
+                  <button
+                    onClick={() => copyToClipboard(bashGitCommands, "terminal")}
+                    className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] flex items-center space-x-1 transition-colors"
+                  >
+                    {copiedSection === "terminal" ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-400">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-cyan-300 overflow-x-auto leading-relaxed">
+                  {bashGitCommands}
+                </pre>
+              </div>
+            </div>
+
+            {/* GitHub Actions Workflow Preview */}
+            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
+                    <Code2 className="w-4 h-4 text-purple-400" />
+                    <span>.github/workflows/deploy.yml</span>
+                  </h3>
+                  <button
+                    onClick={() => copyToClipboard(deployWorkflowYaml, "workflow")}
+                    className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-mono flex items-center space-x-1 transition-colors"
+                  >
+                    {copiedSection === "workflow" ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-400">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                        <span>Copy YAML</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Pre-configured in this repository. Builds Vite with relative links and deploys the artifact to GitHub Pages.
+                </p>
+              </div>
+
+              <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[10px] text-slate-300 overflow-x-auto max-h-[380px] leading-relaxed">
+                {deployWorkflowYaml}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Open PR Modal */}
       {showPRModal && (

@@ -34,6 +34,14 @@ import {
   SystemVersion,
   TechnicalResearchItem,
 } from "./types";
+import {
+  initialFallbackAgents,
+  initialFallbackGitRepo,
+  initialFallbackKnowledge,
+  initialFallbackProjects,
+  initialFallbackTasks,
+  initialFallbackTelemetry,
+} from "./lib/fallbackData";
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>("dashboard");
@@ -89,7 +97,13 @@ export default function App() {
       setProposals(selfDevRes.improvementProposals || []);
       setLogs(logsRes);
     } catch (err) {
-      console.warn("Error refreshing AURA state:", err);
+      // Graceful fallback for static GitHub Pages hosting
+      setTelemetry((prev) => prev || initialFallbackTelemetry);
+      setProjects((prev) => (prev.length > 0 ? prev : initialFallbackProjects));
+      setAgents((prev) => (prev.length > 0 ? prev : initialFallbackAgents));
+      setTasks((prev) => (prev.length > 0 ? prev : initialFallbackTasks));
+      setGitRepo((prev) => prev || initialFallbackGitRepo);
+      setKnowledge((prev) => (prev.length > 0 ? prev : initialFallbackKnowledge));
     }
   }, []);
 
@@ -157,7 +171,30 @@ export default function App() {
       }
       refreshAllState();
     } catch (err) {
-      console.error("Failed to start goal:", err);
+      // Simulate client-side run on static environments (GitHub Pages)
+      const mockRun: OrchestrationRun = {
+        id: `run-${Date.now()}`,
+        projectId: `proj-${Date.now()}`,
+        userGoal: goal,
+        currentPhase: "GOAL_ANALYSIS",
+        progressPercent: 15,
+        isAutonomous: true,
+        currentStepDescription: "Deconstructing user goal into technical specifications...",
+        logs: [],
+        startedAt: new Date().toISOString(),
+        tasks: initialFallbackTasks,
+      };
+      setActiveRun(mockRun);
+
+      const newLog: OrchestrationLogEntry = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        phase: "GOAL_ANALYSIS",
+        agentName: "AutonomousOrchestrator",
+        message: `Autonomous pipeline initialized for: "${goal}"`,
+        type: "info",
+      };
+      setLogs((prev) => [newLog, ...prev]);
     }
   };
 
