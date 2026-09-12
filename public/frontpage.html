@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA — Autonomous AI Software Engineer & Multi-Agent Swarm</title>
+  <meta name="description" content="AURA is an autonomous software engineering organization powered by Google Gemini. From goal to production code, unit tests, and GitHub Pages deployment.">
+  <meta property="og:title" content="AURA — Autonomous AI Software Engineer">
+  <meta property="og:description" content="Zero-approval software development organization with 10 specialized agent swarms, self-healing debug loops, and automated Git CI/CD.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            cyan: {
+              400: '#22d3ee',
+              500: '#06b6d4',
+              900: '#164e63',
+              950: '#083344',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      background-color: #030712;
+      color: #f3f4f6;
+    }
+    .glow-cyan {
+      box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.3);
+    }
+    .glow-pill {
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+    }
+    .gradient-border {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.3) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(147, 51, 234, 0.05) 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 glow-pill">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+          </svg>
+        </div>
+        <div class="flex items-baseline space-x-2">
+          <span class="font-bold text-xl tracking-wider text-white">AURA</span>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-cyan-950/90 border border-cyan-700/60 text-cyan-300 font-semibold">
+            AI Platform v2.0
+          </span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm text-slate-300">
+        <a href="#features" class="hover:text-cyan-400 transition-colors">Capabilities</a>
+        <a href="#swarm" class="hover:text-cyan-400 transition-colors">Agent Swarm</a>
+        <a href="#pipeline" class="hover:text-cyan-400 transition-colors">Pipeline</a>
+        <a href="#architecture" class="hover:text-cyan-400 transition-colors">Architecture</a>
+        <a href="https://github.com/zero-creation2008/Aura" target="_blank" class="hover:text-cyan-400 flex items-center space-x-1.5 transition-colors">
+          <span>GitHub</span>
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <a href="./" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs tracking-wide flex items-center space-x-2 transition-all shadow-[0_0_20px_rgba(6,182,212,0.35)]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Open Mission Control</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-20 overflow-hidden border-b border-slate-900">
+    <div class="absolute inset-0 -z-10 opacity-30">
+      <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-cyan-500/20 blur-[130px] rounded-full"></div>
+      <div class="absolute top-1/3 left-1/3 w-[450px] h-[250px] bg-blue-600/15 blur-[100px] rounded-full"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-6">
+      <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/40 text-xs font-mono text-cyan-300">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        <span>Powered by Google Gemini 3.8 Flash • Zero Human Supervision</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-none">
+        Autonomous AI <br class="hidden sm:inline" />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500">Software Organization</span>
+      </h1>
+
+      <p class="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        AURA translates high-level user intents into fully tested, architected, and continuously self-healing codebases with automated multi-agent coordination.
+      </p>
+
+      <!-- Live Interactive Prompt Tester -->
+      <div class="max-w-3xl mx-auto mt-8 p-3 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-2xl glow-cyan text-left">
+        <div class="p-3">
+          <label class="block text-xs font-mono text-cyan-400 font-medium mb-1.5 flex items-center justify-between">
+            <span>TRY AN AUTONOMOUS GOAL:</span>
+            <span class="text-slate-500 text-[11px]">Zero approval required</span>
+          </label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input 
+              id="promptInput" 
+              type="text" 
+              value="Build an AI real-time chat service with SSE streaming, message persistence, and vitest suites"
+              placeholder="E.g. Create a collaborative whiteboard with WebSocket synchronization" 
+              class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-cyan-400"
+            />
+            <button 
+              onclick="simulateRun()" 
+              class="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 transition-all shadow-lg cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Test Goal</span>
+            </button>
+          </div>
+          <!-- Preset Prompts -->
+          <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-800/80 text-[11px] font-mono text-slate-400">
+            <span class="text-slate-500 py-1">Quick Presets:</span>
+            <button onclick="setPrompt(this.innerText)" class="px-2.5 py-1 rounded-md bg-slate-950 border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition-colors">AI Realtime Chat Suite</button>
+            <button onclick="setPrompt(this.innerText)" class="px-2.5 py-1 rounded-md bg-slate-950 border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition-colors">Distributed Microservices Gateway</button>
+            <button onclick="setPrompt(this.innerText)" class="px-2.5 py-1 rounded-md bg-slate-950 border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 transition-colors">Markdown Documentation Generator</button>
+          </div>
+        </div>
+
+        <!-- Simulated Live Terminal Output -->
+        <div id="terminalContainer" class="mt-2 border-t border-slate-800 bg-slate-950 rounded-xl p-4 font-mono text-xs text-slate-300 space-y-1.5 overflow-hidden">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 text-[11px] text-slate-500">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-green-500/80 inline-block"></span>
+              <span class="text-slate-400 ml-2">AURA Autonomous Execution Swarm</span>
+            </div>
+            <span id="terminalStatus" class="text-cyan-400 font-semibold">READY</span>
+          </div>
+          <div id="terminalBody" class="space-y-1.5 text-xs max-h-48 overflow-y-auto">
+            <p class="text-slate-400">[02:00:00] <span class="text-cyan-300">ExecutiveAgent:</span> Swarm standing by with 10 autonomous roles loaded.</p>
+            <p class="text-slate-400">[02:00:01] <span class="text-purple-300">KnowledgeStore:</span> 4 vector partitions indexed (Technical, Architectural, Project, Agent).</p>
+            <p class="text-slate-400">[02:00:02] <span class="text-emerald-300">GitEngine:</span> Connected to zero-creation2008/Aura with automated CI workflow ready.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex flex-wrap justify-center items-center gap-4 pt-4">
+        <a href="./" class="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm tracking-wide flex items-center space-x-2 transition-all glow-pill">
+          <span>Enter Live Mission Control</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+        <a href="https://github.com/zero-creation2008/Aura" target="_blank" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-sm flex items-center space-x-2 transition-colors">
+          <span>View GitHub Repository</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Telemetry Counters -->
+  <section class="py-10 bg-slate-950/60 border-b border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-cyan-400">10 Swarms</div>
+          <div class="text-xs text-slate-400 mt-1 uppercase font-mono">Specialized Autonomous Agents</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-emerald-400">100% Pass</div>
+          <div class="text-xs text-slate-400 mt-1 uppercase font-mono">Autonomous Self-Healing Rate</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-purple-400">4 Partitions</div>
+          <div class="text-xs text-slate-400 mt-1 uppercase font-mono">pgvector Continuous Memory</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+          <div class="text-2xl sm:text-3xl font-bold font-mono text-amber-400">16 Phases</div>
+          <div class="text-xs text-slate-400 mt-1 uppercase font-mono">Zero-Approval Orchestration</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Core Capabilities Section -->
+  <section id="features" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
+    <div class="text-center space-y-3">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-cyan-400 font-semibold">Core Capabilities</h2>
+      <p class="text-3xl font-bold text-white">Engineering Swarms Built to Ship</p>
+      <p class="text-slate-400 text-sm max-w-2xl mx-auto">
+        A complete software engineering firm operating entirely within Gemini 3.8 Flash, complete with code synthesis, diagnostics, and version control.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Card 1 -->
+      <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-4">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white">Dynamic Multi-Agent Swarm</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          10 role-specialized AI agents collaborate on architecture, backend APIs, frontend UIs, security audits, and automated documentation without bottlenecking on human approvals.
+        </p>
+        <div class="flex flex-wrap gap-2 text-[11px] font-mono text-cyan-300">
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Executive</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Architect</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Backend</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Frontend</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Testing QA</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white">Self-Healing AST Debug Engine</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          The 6-step loop (inspect &rarr; plan &rarr; patch &rarr; test &rarr; diagnose &rarr; verify) fixes syntax bugs, bracket mismatches, and failed test assertions automatically before release.
+        </p>
+        <div class="flex flex-wrap gap-2 text-[11px] font-mono text-emerald-300">
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">AST Validation</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Vitest Test Suites</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Zero-Touch Patching</span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-4">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white">pgvector 4-Partition Neural Memory</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Knowledge is preserved across conversation, project, agent, and technical documentation partitions, allowing agents to retain lessons learned from previous debug sessions.
+        </p>
+        <div class="flex flex-wrap gap-2 text-[11px] font-mono text-purple-300">
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Cosine Similarity</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Continuous Learning</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Cross-Project Context</span>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white">Git Autonomy & GitHub Pages Deploy</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Automated feature branch provisioning, conventional semantic commit messages, automated pull request generation, and GitHub Pages CI action verification.
+        </p>
+        <div class="flex flex-wrap gap-2 text-[11px] font-mono text-amber-300">
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Zero-Conflict Git</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">GitHub Actions CI</span>
+          <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">Automated PRs</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 Agent Swarms Showcase -->
+  <section id="swarm" class="py-16 bg-slate-950/80 border-t border-b border-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
+      <div class="text-center space-y-2">
+        <h2 class="text-xs font-mono uppercase tracking-widest text-cyan-400 font-semibold">Autonomous Workforce</h2>
+        <p class="text-2xl font-bold text-white">The 10 Specialized Roles</p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs font-mono">
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">1. ExecutiveAgent</div>
+          <div class="text-slate-400 text-[11px]">Goal breakdown & SLA orchestration</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">2. ArchitectAgent</div>
+          <div class="text-slate-400 text-[11px]">Boundaries, microservices & contracts</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">3. FrontendAgent</div>
+          <div class="text-slate-400 text-[11px]">React 19, Tailwind v4, accessible UI</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">4. BackendAgent</div>
+          <div class="text-slate-400 text-[11px]">Node.js Express, SSE, REST logic</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">5. TestingAgent</div>
+          <div class="text-slate-400 text-[11px]">Vitest, Supertest, debug loop driver</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">6. DevOpsAgent</div>
+          <div class="text-slate-400 text-[11px]">Docker, GitHub Pages workflows</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">7. SecurityAgent</div>
+          <div class="text-slate-400 text-[11px]">AST static taint & audit checks</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">8. DocsAgent</div>
+          <div class="text-slate-400 text-[11px]">API specifications & README.md</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">9. ResearchAgent</div>
+          <div class="text-slate-400 text-[11px]">Official SDK docs & RFC synthesis</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <div class="text-cyan-400 font-bold">10. GitAgent</div>
+          <div class="text-slate-400 text-[11px]">Branches, commits, automated PRs</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16-Phase Pipeline Summary -->
+  <section id="pipeline" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 space-y-10">
+    <div class="text-center space-y-3">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-cyan-400 font-semibold">Execution Flow</h2>
+      <p class="text-3xl font-bold text-white">The 16-Phase Autonomous Pipeline</p>
+    </div>
+
+    <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+      <div class="flex items-center space-x-2 min-w-max pb-2">
+        <span class="px-2.5 py-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-300">1. GOAL_ANALYSIS</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-2.5 py-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-300">2. RESEARCH</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-2.5 py-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-300">3. ARCHITECTURE</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-2.5 py-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-300">4. TASK_DECOMP</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-2.5 py-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-300">5. SYNTHESIS</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-2.5 py-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-300">6. DEBUG_LOOP</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-2.5 py-1.5 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-300">7. GIT_PR</span>
+        <span class="text-slate-600">&rarr;</span>
+        <span class="px-2.5 py-1.5 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-300">8. COMPLETED</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="py-16 bg-gradient-to-b from-slate-950 to-cyan-950/40 border-t border-slate-900 text-center">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Experience Zero-Approval Software Development</h2>
+      <p class="text-sm text-slate-300">
+        Run AURA locally or explore live mission control directly inside your browser.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="./" class="px-8 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm tracking-wide transition-all glow-pill">
+          Launch AURA Mission Control
+        </a>
+        <a href="https://github.com/zero-creation2008/Aura" target="_blank" class="px-8 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-semibold text-sm transition-colors">
+          View zero-creation2008/Aura on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 bg-slate-950 border-t border-slate-900 text-xs text-slate-500 text-center font-mono">
+    <p>AURA Autonomous Developer • Powered by Google Gemini 3.8 Flash • Designed for GitHub Pages</p>
+  </footer>
+
+  <!-- Interactive Terminal Simulation Script -->
+  <script>
+    function setPrompt(text) {
+      document.getElementById('promptInput').value = text;
+      simulateRun();
+    }
+
+    function simulateRun() {
+      const goal = document.getElementById('promptInput').value.trim();
+      if (!goal) return;
+
+      const body = document.getElementById('terminalBody');
+      const status = document.getElementById('terminalStatus');
+      status.innerText = "ORCHESTRATING...";
+      status.className = "text-yellow-400 font-semibold animate-pulse";
+
+      const now = new Date().toTimeString().split(' ')[0];
+      body.innerHTML = `
+        <p class="text-cyan-400 font-bold">[${now}] &gt;&gt; INITIATING AUTONOMOUS GOAL: "${goal}"</p>
+      `;
+
+      const steps = [
+        { agent: "ExecutiveAgent", text: "Decomposing goal into 4 execution nodes with sequential & parallel DAG edges", delay: 600, color: "text-cyan-300" },
+        { agent: "ResearchAgent", text: "Querying official specs & RFC contracts for optimal library dependencies", delay: 1300, color: "text-amber-300" },
+        { agent: "ArchitectAgent", text: "Selected Architecture: Node.js Express streaming backend + React 19 UI", delay: 2000, color: "text-blue-300" },
+        { agent: "CodingEngine", text: "Generating 3 AST verified source files (chatService.ts, test.ts, README.md)", delay: 2800, color: "text-purple-300" },
+        { agent: "TestingAgent", text: "Running Vitest test suites: 4 passed, 0 failed (100% assertions green)", delay: 3500, color: "text-emerald-300" },
+        { agent: "GitAgent", text: "Created branch 'aura/goal-run' and staged commit 7274e78. PR opened.", delay: 4200, color: "text-yellow-300" },
+      ];
+
+      steps.forEach(s => {
+        setTimeout(() => {
+          const t = new Date().toTimeString().split(' ')[0];
+          body.innerHTML += `<p class="text-slate-300">[${t}] <span class="${s.color}">${s.agent}:</span> ${s.text}</p>`;
+          body.scrollTop = body.scrollHeight;
+        }, s.delay);
+      });
+
+      setTimeout(() => {
+        status.innerText = "SUCCESS (100%)";
+        status.className = "text-emerald-400 font-semibold";
+        const t = new Date().toTimeString().split(' ')[0];
+        body.innerHTML += `<p class="text-emerald-400 font-bold">[${t}] &check; Autonomous pipeline completed. Ready in Mission Control.</p>`;
+        body.scrollTop = body.scrollHeight;
+      }, 4800);
+    }
+  </script>
+</body>
+</html>

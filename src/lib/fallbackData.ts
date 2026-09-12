@@ -247,8 +247,8 @@ npm run dev
 
 export const initialFallbackGitRepo: GitRepository = {
   id: "repo-aura-main",
-  name: "aura-autonomous-developer",
-  remoteUrl: "https://github.com/seronjeyaseelan/aura-autonomous-developer",
+  name: "Aura",
+  remoteUrl: "https://github.com/zero-creation2008/Aura.git",
   currentBranch: "main",
   branches: ["main", "aura/feature-chat-engine", "aura/debug-ast-repair"],
   commits: [

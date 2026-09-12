@@ -1,7 +1,12 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
+  "name": "aura",
+  "version": "2.0.0",
+  "description": "AURA — Autonomous AI Software-Development Platform powered by Google Gemini 3.8 Flash",
+  "homepage": "https://zero-creation2008.github.io/Aura/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zero-creation2008/Aura.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",

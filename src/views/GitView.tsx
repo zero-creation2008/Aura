@@ -35,12 +35,14 @@ interface GitViewProps {
 }
 
 export const GitView: React.FC<GitViewProps> = ({ repository, onCreateBranch, onCreatePR }) => {
-  const [activeSubTab, setActiveSubTab] = useState<"prs_commits" | "pages_guide">("prs_commits");
+  const [activeSubTab, setActiveSubTab] = useState<"prs_commits" | "pages_guide">("pages_guide");
   const [newBranchName, setNewBranchName] = useState("");
   const [showPRModal, setShowPRModal] = useState(false);
   const [prTitle, setPrTitle] = useState("");
   const [prDesc, setPrDesc] = useState("");
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
+  const [githubUser, setGithubUser] = useState("zero-creation2008");
+  const [githubRepo, setGithubRepo] = useState("Aura");
 
   if (!repository) {
     return (
@@ -133,11 +135,16 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4`;
 
+  const cleanUser = githubUser.trim() || "zero-creation2008";
+  const cleanRepo = githubRepo.trim() || "Aura";
+  const repoRemoteUrl = `https://github.com/${cleanUser}/${cleanRepo}.git`;
+  const githubPagesLiveUrl = `https://${cleanUser}.github.io/${cleanRepo}/`;
+
   const bashGitCommands = `git init
 git add .
 git commit -m "feat: initial AURA autonomous developer platform"
 git branch -M main
-git remote add origin https://github.com/<YOUR_USERNAME>/<YOUR_REPO_NAME>.git
+git remote add origin ${repoRemoteUrl}
 git push -u origin main`;
 
   const aiStructureItems = [
@@ -196,7 +203,7 @@ git push -u origin main`;
           </div>
           <h2 className="text-xl font-bold text-white mt-1">{repository.name}</h2>
           <p className="text-xs text-slate-400 mt-0.5 font-mono">
-            Origin: {repository.remoteUrl || "https://github.com/seronjeyaseelan/aura-autonomous-developer"} • Current Branch: {repository.currentBranch}
+            Origin: {repository.remoteUrl || repoRemoteUrl} • Current Branch: {repository.currentBranch}
           </p>
         </div>
 
@@ -432,16 +439,69 @@ git push -u origin main`;
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Steps Guide */}
             <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
-                <Rocket className="w-4 h-4 text-emerald-400" />
-                <span>3-Step Deployment Walkthrough</span>
-              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center space-x-2">
+                  <Rocket className="w-4 h-4 text-emerald-400" />
+                  <span>Deployment Walkthrough</span>
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <a
+                    href={`https://github.com/${cleanUser}/${cleanRepo}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 flex items-center space-x-1"
+                  >
+                    <span>Repo</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <span className="text-slate-600">•</span>
+                  <a
+                    href={githubPagesLiveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] font-mono text-emerald-400 hover:text-emerald-300 flex items-center space-x-1"
+                  >
+                    <span>Live URL</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Interactive Target Configurator */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                <div className="text-[11px] font-mono text-slate-400 font-semibold uppercase flex items-center justify-between">
+                  <span>Target GitHub Repository:</span>
+                  <span className="text-cyan-400 font-normal">{cleanUser}/{cleanRepo}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-mono text-slate-500 block mb-1">GitHub Username</label>
+                    <input
+                      type="text"
+                      value={githubUser}
+                      onChange={(e) => setGithubUser(e.target.value)}
+                      placeholder="zero-creation2008"
+                      className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-mono text-slate-500 block mb-1">Repository Name</label>
+                    <input
+                      type="text"
+                      value={githubRepo}
+                      onChange={(e) => setGithubRepo(e.target.value)}
+                      placeholder="Aura"
+                      className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                </div>
+              </div>
 
               <div className="space-y-3 text-xs">
                 <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1">
                   <div className="flex items-center space-x-2 font-bold text-white">
                     <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-mono">1</span>
-                    <span>Push to your GitHub Repository</span>
+                    <span>Push to {cleanUser}/{cleanRepo}</span>
                   </div>
                   <p className="text-slate-400 text-[11px] pl-7">
                     Export your project or push the repository to GitHub on branch <code className="text-cyan-300">main</code>.
@@ -464,7 +524,7 @@ git push -u origin main`;
                     <span>Automatic Build & Live URL</span>
                   </div>
                   <p className="text-slate-400 text-[11px] pl-7">
-                    GitHub Actions automatically triggers the build. Your app goes live at <code className="text-emerald-400">https://&lt;username&gt;.github.io/&lt;repo&gt;/</code>.
+                    GitHub Actions automatically triggers the build. Your app goes live at <a href={githubPagesLiveUrl} target="_blank" rel="noreferrer" className="text-emerald-400 underline font-mono">{githubPagesLiveUrl}</a>.
                   </p>
                 </div>
               </div>

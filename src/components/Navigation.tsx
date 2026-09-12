@@ -28,6 +28,7 @@ import {
 import { OrchestrationRun, SystemTelemetry } from "../types";
 
 export type NavTab =
+  | "frontpage"
   | "dashboard"
   | "chat"
   | "agents"
@@ -61,6 +62,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   connected,
 }) => {
   const navItems: { id: NavTab; label: string; icon: React.ReactNode; badge?: string | number }[] = [
+    { id: "frontpage", label: "AI Front Page", icon: <Sparkles className="w-4 h-4 text-cyan-400" /> },
     { id: "dashboard", label: "Dashboard", icon: <Activity className="w-4 h-4" /> },
     { id: "chat", label: "Autonomous Chat", icon: <MessageSquare className="w-4 h-4" /> },
     { id: "projects", label: "Projects & Code", icon: <FileCode className="w-4 h-4" /> },
@@ -79,13 +81,17 @@ export const Navigation: React.FC<NavigationProps> = ({
     <header className="bg-slate-950 border-b border-slate-800 text-slate-200 select-none">
       {/* Top Header Bar */}
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+        <div
+          onClick={() => onTabChange("frontpage")}
+          className="flex items-center space-x-3 cursor-pointer group"
+          title="Go to AI Front Page"
+        >
+          <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)] group-hover:border-cyan-400/60 transition-colors">
             <Cpu className="w-5 h-5 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-lg tracking-wider text-white">AURA</span>
+              <span className="font-bold text-lg tracking-wider text-white group-hover:text-cyan-300 transition-colors">AURA</span>
               <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-700/50 text-cyan-300 font-semibold">
                 Autonomous Dev v2.0
               </span>
@@ -131,6 +137,18 @@ export const Navigation: React.FC<NavigationProps> = ({
             />
             <span>{connected ? "LIVE BUS" : "RECONNECTING"}</span>
           </div>
+
+          {/* Direct HTML Front Page Link */}
+          <a
+            href="/frontpage.html"
+            target="_blank"
+            rel="noreferrer"
+            title="Open Standalone Pure HTML Front Page"
+            className="hidden lg:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-xs text-cyan-300 font-mono hover:bg-cyan-900/80 transition-colors"
+          >
+            <FileCode className="w-3.5 h-3.5" />
+            <span>Pure HTML Page</span>
+          </a>
         </div>
       </div>
 

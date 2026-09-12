@@ -43,6 +43,11 @@ async function startServer() {
     res.json(store.getTelemetry());
   });
 
+  // Serve pure standalone HTML front page
+  app.get("/frontpage.html", (_req: Request, res: Response) => {
+    res.sendFile(path.join(process.cwd(), "public", "frontpage.html"));
+  });
+
   // Real-Time Server-Sent Events (SSE) stream for live dashboard logs & events
   app.get("/api/events", (req: Request, res: Response) => {
     res.setHeader("Content-Type", "text/event-stream");

@@ -1,5 +1,7 @@
 # AURA — Autonomous AI Software-Development Platform
 ## Architecture, File Structure & GitHub Pages Deployment Guide
+**Target Repository:** [github.com/zero-creation2008/Aura](https://github.com/zero-creation2008/Aura)  
+**Live GitHub Pages URL:** [zero-creation2008.github.io/Aura](https://zero-creation2008.github.io/Aura/)
 
 AURA is an autonomous AI software development organization powered by Google Gemini 3.8 Flash, featuring multi-agent swarms, self-healing debug loops, continuous pgvector knowledge memory, and automated Git CI/CD.
 
@@ -70,6 +72,8 @@ AURA is an autonomous AI software development organization powered by Google Gem
 │   ├── components/
 │   │   ├── LiveEventTicker.tsx     # Real-time Telemetry & Event Stream
 │   │   └── Navigation.tsx          # Global Navigation & System Status Pill
+│   ├── lib/
+│   │   └── fallbackData.ts         # Client-Side Standalone Simulation & Fallback Data
 │   ├── views/
 │   │   ├── AgentsView.tsx          # Agent Swarm Inspector & Evolution Hub
 │   │   ├── ChatView.tsx            # Conversational Command Interface
@@ -96,34 +100,40 @@ AURA is an autonomous AI software development organization powered by Google Gem
 
 ---
 
-## 3. How to Host on GitHub Pages (Step-by-Step)
-
-GitHub Pages hosts client-side static web applications directly from a GitHub repository.
+## 3. How to Host on GitHub Pages (for zero-creation2008/Aura)
 
 ### Step 1: Push Repository to GitHub
-Create a new GitHub repository and push your project:
+Run these commands in your project terminal:
+```bash
+git branch -M main
+git remote add origin https://github.com/zero-creation2008/Aura.git
+git push -u origin main
+```
+
+*(Note: If you are setting up fresh on another machine:)*
 ```bash
 git init
 git add .
-git commit -m "feat: initial AURA autonomous platform commit"
+git commit -m "feat: initial commit for AURA autonomous developer platform"
 git branch -M main
-git remote add origin https://github.com/<YOUR_USERNAME>/<YOUR_REPO_NAME>.git
+git remote add origin https://github.com/zero-creation2008/Aura.git
 git push -u origin main
 ```
 
 ### Step 2: Enable GitHub Pages in Repository Settings
-1. Open your repository on **GitHub.com**.
-2. Go to **Settings** > **Pages** (in the left sidebar).
-3. Under **Build and deployment**:
-   - **Source**: Select **GitHub Actions**.
+1. Open [github.com/zero-creation2008/Aura](https://github.com/zero-creation2008/Aura) on GitHub.
+2. Click **Settings** (tab at the top right of the repo).
+3. In the left sidebar, click **Pages**.
+4. Under **Build and deployment**:
+   - **Source**: Select **GitHub Actions** from the dropdown menu.
 
-### Step 3: Run the Automated Workflow
-1. The included `.github/workflows/deploy.yml` will automatically trigger whenever you push to `main`.
-2. You can also trigger it manually under the **Actions** tab by selecting **Deploy to GitHub Pages** > **Run workflow**.
-3. Once completed (typically 1-2 minutes), your live URL will be active at:
+### Step 3: Automated Workflow Runs
+1. Because `.github/workflows/deploy.yml` is already committed to the repository, pushing to `main` automatically starts the **Deploy to GitHub Pages** action.
+2. You can monitor the deployment progress in the **Actions** tab.
+3. Once completed (usually 60-90 seconds), your live site will be ready at:
    ```
-   https://<YOUR_USERNAME>.github.io/<YOUR_REPO_NAME>/
+   https://zero-creation2008.github.io/Aura/
    ```
 
-### Step 4: Client-Side Standalone Mode
-When deployed to GitHub Pages, AURA automatically detects the static environment and engages its built-in client-side autonomous simulation engine, allowing full exploration of the goal pipeline, task DAG, agent evolution, code inspection, and memory partitions without requiring a dedicated container server.
+### Step 4: Client-Side Standalone Simulation
+The application is pre-configured with `base: './'` and a resilient client-side fallback engine (`src/lib/fallbackData.ts`). When running on GitHub Pages (static environment), all dashboards, agent inspectors, task DAG visualizers, and project code explorers function smoothly out-of-the-box.

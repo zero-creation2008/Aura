@@ -455,10 +455,10 @@ class StateStore {
     // 3. Seed Repository
     const initialRepo: GitRepository = {
       id: "repo-chat-app",
-      name: "aura-ai-chat-suite",
+      name: "Aura",
       currentBranch: "main",
       branches: ["main", "feature/stream-resilience", "aura/autonomous-debug-v1"],
-      remoteUrl: "https://github.com/aura-autonomous-org/ai-chat-suite.git",
+      remoteUrl: "https://github.com/zero-creation2008/Aura.git",
       commits: [
         {
           id: "c1",
