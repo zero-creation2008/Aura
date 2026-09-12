@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  # 1. Frontend Web (Next.js / Vite dashboard)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aura_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=postgresql://aura_user:aura_secure_password@postgres:5432/aura_db
+      - REDIS_URL=redis://redis:6379/0
+      - API_URL=http://api:8000
+      - AUTONOMOUS_MODE=true
+    depends_on:
+      - postgres
+      - redis
+      - api
+    networks:
+      - aura_network
+
+  # 2. FastAPI Orchestrator & Agents Engine (Python 3.11 + asyncio)
+  api:
+    image: python:3.11-slim
+    container_name: aura_api
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=postgresql://aura_user:aura_secure_password@postgres:5432/aura_db
+      - REDIS_URL=redis://redis:6379/0
+      - DEFAULT_MODEL=gemini-3.8-flash
+      - PLANNER_MODEL=gemini-3.8-flash
+      - CODER_MODEL=gemini-3.8-flash
+      - RESEARCH_MODEL=gemini-3.8-flash
+      - FAST_MODEL=gemini-3.8-flash
+      - MAX_ITERATIONS=10
+      - MAX_RUNTIME=3600
+    command: >
+      bash -c "pip install fastapi uvicorn google-genai asyncpg redis pydantic httpx &&
+               uvicorn server.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - aura_network
+
+  # 3. PostgreSQL Database with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: aura_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aura_user
+      POSTGRES_PASSWORD: aura_secure_password
+      POSTGRES_DB: aura_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - aura_pgdata:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - aura_network
+
+  # 4. Redis Event Bus & Task Queue
+  redis:
+    image: redis:7-alpine
+    container_name: aura_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - aura_redisdata:/data
+    networks:
+      - aura_network
+
+  # 5. Sandboxed Code Execution & Testing Runner
+  sandbox:
+    image: alpine:latest
+    container_name: aura_sandbox
+    restart: unless-stopped
+    command: sleep infinity
+    volumes:
+      - aura_workspaces:/workspaces
+    networks:
+      - aura_network
+
+volumes:
+  aura_pgdata:
+  aura_redisdata:
+  aura_workspaces:
+
+networks:
+  aura_network:
+    driver: bridge
