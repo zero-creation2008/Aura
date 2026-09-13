@@ -7,13 +7,11 @@ on:
       - main
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
 concurrency:
   group: 'pages'
   cancel-in-progress: true
@@ -39,6 +37,24 @@ jobs:
 
       - name: Build Application
         run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Verify build output
+        run: |
+          echo "=== dist contents ==="
+          ls -la dist/
+          echo "=== Checking index.html does not reference source files ==="
+          if grep -q '/src/main.tsx' dist/index.html; then
+            echo "ERROR: dist/index.html still references /src/main.tsx — Vite did not transform the entry."
+            cat dist/index.html
+            exit 1
+          fi
+          if ! grep -q 'assets/' dist/index.html && ! grep -q '\.js' dist/index.html; then
+            echo "WARNING: dist/index.html may not contain hashed asset references."
+            cat dist/index.html
+          fi
+          echo "Build verification passed."
 
       - name: Copy 404 Page for SPA Routing
         run: cp dist/index.html dist/404.html
