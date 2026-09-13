@@ -55,12 +55,19 @@ export class ErrorBoundary extends React.Component<Props, State> {
               >
                 Reload Dashboard
               </button>
-              <a
-                href="./frontpage.html"
-                className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 font-semibold rounded-lg text-sm transition-all text-center"
+              <button
+                onClick={() => {
+                  try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                  } catch (_e) {}
+                  this.setState({ hasError: false, error: null });
+                  window.location.href = window.location.pathname;
+                }}
+                className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-semibold rounded-lg text-sm transition-all cursor-pointer text-center"
               >
-                Open Standalone Front Page
-              </a>
+                Reset & Launch Dashboard
+              </button>
             </div>
           </div>
         </div>

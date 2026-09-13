@@ -45,7 +45,7 @@ import {
 } from "./lib/fallbackData";
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<NavTab>("frontpage");
+  const [currentTab, setCurrentTab] = useState<NavTab>("dashboard");
   const [connected, setConnected] = useState(false);
   const [telemetry, setTelemetry] = useState<SystemTelemetry | null>(null);
   const [activeRun, setActiveRun] = useState<OrchestrationRun | null>(null);
@@ -298,9 +298,11 @@ export default function App() {
     }
 
     // Client-side static AI response
+    const staticReply = `I am AURA, your autonomous AI software engineer. I received your instruction: "${message}". The multi-agent swarm has evaluated this request and updated internal task queues.`;
     const staticResponse = {
-      role: "assistant",
-      content: `I am AURA (Autonomous AI Developer, GitHub Edition). I processed your instruction: "${message}". The multi-agent swarm has updated the architectural specifications and synced with repository zero-creation2008/Aura.`,
+      reply: staticReply,
+      content: staticReply,
+      actionTaken: "PROCESSED_INSTRUCTION",
       suggestions: [
         "Run full AST regression test suites",
         "Inspect 10-Agent Factory configurations",

@@ -28,7 +28,6 @@ import {
 import { OrchestrationRun, SystemTelemetry } from "../types";
 
 export type NavTab =
-  | "frontpage"
   | "dashboard"
   | "chat"
   | "agents"
@@ -40,7 +39,8 @@ export type NavTab =
   | "git"
   | "self-dev"
   | "logs"
-  | "settings";
+  | "settings"
+  | "frontpage";
 
 interface NavigationProps {
   currentTab: NavTab;
@@ -62,7 +62,6 @@ export const Navigation: React.FC<NavigationProps> = ({
   connected,
 }) => {
   const navItems: { id: NavTab; label: string; icon: React.ReactNode; badge?: string | number }[] = [
-    { id: "frontpage", label: "AI Front Page", icon: <Sparkles className="w-4 h-4 text-cyan-400" /> },
     { id: "dashboard", label: "Dashboard", icon: <Activity className="w-4 h-4" /> },
     { id: "chat", label: "Autonomous Chat", icon: <MessageSquare className="w-4 h-4" /> },
     { id: "projects", label: "Projects & Code", icon: <FileCode className="w-4 h-4" /> },
@@ -82,9 +81,9 @@ export const Navigation: React.FC<NavigationProps> = ({
       {/* Top Header Bar */}
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <div
-          onClick={() => onTabChange("frontpage")}
+          onClick={() => onTabChange("dashboard")}
           className="flex items-center space-x-3 cursor-pointer group"
-          title="Go to AI Front Page"
+          title="Go to AURA Developer Dashboard"
         >
           <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)] group-hover:border-cyan-400/60 transition-colors">
             <Cpu className="w-5 h-5 animate-pulse" />
@@ -137,18 +136,6 @@ export const Navigation: React.FC<NavigationProps> = ({
             />
             <span>{connected ? "LIVE BUS" : "RECONNECTING"}</span>
           </div>
-
-          {/* Direct HTML Front Page Link */}
-          <a
-            href="/frontpage.html"
-            target="_blank"
-            rel="noreferrer"
-            title="Open Standalone Pure HTML Front Page"
-            className="hidden lg:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-xs text-cyan-300 font-mono hover:bg-cyan-900/80 transition-colors"
-          >
-            <FileCode className="w-3.5 h-3.5" />
-            <span>Pure HTML Page</span>
-          </a>
         </div>
       </div>
 

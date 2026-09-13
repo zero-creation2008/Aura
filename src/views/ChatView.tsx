@@ -81,11 +81,12 @@ What would you like to build or analyze today?`,
 
     try {
       const response = await onSendMessage(text);
+      const replyText = response?.reply || (response as any)?.content || "Instruction processed by autonomous agents.";
       const auraMsg: Message = {
         id: `msg-${Date.now() + 1}`,
         sender: "aura",
-        text: response.reply,
-        actionTaken: response.actionTaken,
+        text: replyText,
+        actionTaken: response?.actionTaken,
         timestamp: new Date().toLocaleTimeString(),
       };
       setMessages((prev) => [...prev, auraMsg]);
