@@ -136,7 +136,11 @@ def github_status():
 
 @app.route("/api/health")
 def health():
+    from core import redis_store
     result = db.healthcheck()
+    redis_health = redis_store.healthcheck()
+    result["redis"] = redis_health
+    result["ok"] = result["ok"] and redis_health["ok"]
     return jsonify(result), (200 if result["ok"] else 503)
 
 
