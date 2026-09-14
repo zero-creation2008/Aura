@@ -5,6 +5,7 @@ cosine-similarity search done in Python, since Termux has no easy pgvector.
 Good enough for a single-user local memory store.
 """
 import sqlite3
+import re
 import json
 import time
 import math
@@ -94,10 +95,30 @@ CREATE TABLE IF NOT EXISTS proposals (
 """
 
 
+class _PostgresConnection:
+    """Small compatibility adapter so the persistence API uses PostgreSQL in production."""
+    def __init__(self, conn): self._conn = conn
+    @staticmethod
+    def _sql(sql): return re.sub(r"\?", "%s", sql)
+    def execute(self, sql, params=()): return self._conn.execute(self._sql(sql), params)
+    def executescript(self, script):
+        for statement in script.split(";"):
+            if statement.strip(): self._conn.execute(statement)
+    def commit(self): self._conn.commit()
+    def close(self): self._conn.close()
+
 @contextmanager
 def get_conn():
-    conn = sqlite3.connect(config.DB_PATH)
-    conn.row_factory = sqlite3.Row
+    if config.DATABASE_URL:
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
+        except ImportError as exc:
+            raise RuntimeError("DATABASE_URL requires psycopg; install production dependencies") from exc
+        conn = _PostgresConnection(psycopg.connect(config.DATABASE_URL, row_factory=dict_row))
+    else:
+        conn = sqlite3.connect(config.DB_PATH)
+        conn.row_factory = sqlite3.Row
     try:
         yield conn
         conn.commit()
@@ -106,8 +127,12 @@ def get_conn():
 
 
 def init_db():
+    schema = SCHEMA
+    if config.DATABASE_URL:
+        # SQLite-only identity syntax is converted before the migration runs.
+        schema = schema.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
     with get_conn() as conn:
-        conn.executescript(SCHEMA)
+        conn.executescript(schema)
 
 
 # ---------- Tasks ----------

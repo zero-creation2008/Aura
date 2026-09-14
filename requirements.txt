@@ -2,3 +2,8 @@ flask==3.0.3
 requests==2.32.3
 beautifulsoup4==4.12.3
 pytest==8.3.3
+
+# PostgreSQL production backend
+psycopg[binary]==3.2.3
+# Redis event/job/cache backend
+redis==5.2.0
