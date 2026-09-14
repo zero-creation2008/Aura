@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURA</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">AURA</div>
+      <div class="status" id="status">checking…</div>
+    </header>
+
+    <main class="layout">
+      <section class="panel chat-panel">
+        <h2>Chat</h2>
+        <div id="chat-log" class="chat-log"></div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-input" type="text" placeholder="Ask AURA to research, build, or just chat…" autocomplete="off" />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+
+      <section class="panel side-panel">
+        <div class="block">
+          <h3>Pending Approvals</h3>
+          <div id="approvals-list" class="list"></div>
+        </div>
+        <div class="block">
+          <h3>Recent Tasks</h3>
+          <div id="tasks-list" class="list"></div>
+        </div>
+        <div class="block">
+          <h3>Activity</h3>
+          <div id="activity-list" class="list activity"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
